@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<launch>
+
+    <arg name="lidar_frame" default="base_scan"/>
+    <arg name="lidar_port" default="/dev/ttyUSB0"/>
+    <arg name="serial_port" default="/dev/ttyUSB1"/>
+    <arg name="serial_baudrate" default="115200"/>
+    <arg name="urdf_file" default="$(find xacro)/xacro --inorder '$(find ired_bringup)/urdf/robot.urdf.xacro'"/>
+    <param name="robot_description" command="$(arg urdf_file)" />
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
+        <param name="publish_frequency" type="double" value="50.0" />
+        <param name="tf_prefix" value=""/>
+    </node>
+
+    <node name="ired_odom_node" pkg="ired_bringup" type="ired_odom_node"  output="screen"/>
+
+    <include file="$(find rplidar_ros)/launch/rplidar_ros.launch">\
+        <arg name="frame_id" value="$(arg lidar_frame)"/>
+        <arg name="serial_port" value="$(arg lidar_port)"/>
+    </include>
+
+    <node name="ired_serial_node" pkg="rosserial_arduino" type="serial_node.py" output="screen" >
+        <param name="port" value="$(arg serial_port)"/>
+        <param name="baud" value="$(arg serial_baudrate)"/>
+    </node>
+
+</launch>
